@@ -17,6 +17,7 @@ public class VerticalMovementCharacter : MonoBehaviour
 
     void Update()
     {
+        // Tombol K movement
         if (Input.GetKeyDown(KeyCode.K))
         {
             if (moveCoroutine != null) StopCoroutine(moveCoroutine);
@@ -30,11 +31,15 @@ public class VerticalMovementCharacter : MonoBehaviour
             anim.SetBool("movement", false);
         } 
         
-        //Kalo pencet K lagi
-        // if (Input.GetKeyUp(KeyCode.K))
-        // {
-        //     anim.SetBool("movement", false);
-        // }
+        // Tombol L untuk menyerang
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            if (moveCoroutine != null) StopCoroutine (moveCoroutine);
+            anim.SetBool("movement", false);
+
+            Debug.Log("Serang dia!");
+        }
+
     }
 
     private IEnumerator MoveToPosition(float targetY)
