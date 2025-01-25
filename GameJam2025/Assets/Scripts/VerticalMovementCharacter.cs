@@ -6,20 +6,35 @@ public class VerticalMovementCharacter : MonoBehaviour
 {
     // Inisiasi
     public float moveSpeed = 2f;
-    private bool isMovingUp = false;
+    private Animator anim;
     private Coroutine moveCoroutine;
+    private bool isMovingUp = false;
+
+    void Start()
+    {
+        anim = GetComponent<Animator>();
+    }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.K))
         {
             if (moveCoroutine != null) StopCoroutine(moveCoroutine);
-            moveCoroutine = StartCoroutine(MoveToPosition(transform.position.y + 5f ));
-        } else if (Input.GetKeyDown(KeyCode.L))
+            isMovingUp = !isMovingUp;
+            anim.SetBool("movement", true);
+
+            float targetY = isMovingUp ? transform.position.y + 5f : transform.position.y - 5f;
+            moveCoroutine = StartCoroutine(MoveToPosition(targetY));
+        } else 
         {
-            if (moveCoroutine != null) StopCoroutine(moveCoroutine);
-            moveCoroutine = StartCoroutine(MoveToPosition(transform.position.y - 5f));
-        }
+            anim.SetBool("movement", false);
+        } 
+        
+        //Kalo pencet K lagi
+        // if (Input.GetKeyUp(KeyCode.K))
+        // {
+        //     anim.SetBool("movement", false);
+        // }
     }
 
     private IEnumerator MoveToPosition(float targetY)
