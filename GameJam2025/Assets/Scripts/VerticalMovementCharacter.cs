@@ -8,8 +8,10 @@ public class VerticalMovementCharacter : MonoBehaviour
     public float moveSpeed = 2f;
     private Animator anim;
     private Coroutine moveCoroutine;
+    private bool isHoldingAttack = false;
     private bool isMovingUp = false;
 
+    // Main Method
     void Start()
     {
         anim = GetComponent<Animator>();
@@ -17,48 +19,90 @@ public class VerticalMovementCharacter : MonoBehaviour
 
     void Update()
     {
-        // Tombol K movement
+        // Gerakan ke atas dan ke bawah dengan tombol K
         if (Input.GetKeyDown(KeyCode.K))
         {
-            if (moveCoroutine != null) StopCoroutine(moveCoroutine);
-            isMovingUp = !isMovingUp;
-            anim.SetBool("movement", true);
-
-            float targetY = isMovingUp ? transform.position.y + 5f : transform.position.y - 5f;
-            moveCoroutine = StartCoroutine(MoveToPosition(targetY));
-        } else 
+            StartCoroutine(MoveCharacter()); // Pindahkan karakter dengan coroutine
+        }
+    
+        // Tombol L menyerang renew
+        if (Input.GetKeyDown(KeyCode.L) && !isHoldingAttack)
         {
-            anim.SetBool("movement", false);
-        } 
-        
-        // Tombol L untuk menyerang
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            if (moveCoroutine != null) StopCoroutine (moveCoroutine);
-            anim.SetBool("movement", false);
-
-            Debug.Log("Serang dia!");
+            NormalAttack();
         }
 
+        if (Input.GetKey(KeyCode.L))
+        {
+            if (!isHoldingAttack)
+            {
+                StartHoldAttack();
+            }
+        } else if (isHoldingAttack)
+        {
+            EndHoldAttack();
+        }
     }
 
-    private IEnumerator MoveToPosition(float targetY)
+    // Method Function
+    private IEnumerator MoveCharacter()
     {
-        float startY = transform.position.y;
-        float journeyLength = Mathf.Abs(targetY - startY);
-        float journeyTime = journeyLength / moveSpeed;
-        float elapsedTime = 0f;
+        anim.SetBool("movement", true); 
+        anim.SetBool("isMovingUp", !isMovingUp); 
+        anim.SetBool("isMovingDown", isMovingUp); 
 
-        // Perulangan
+        float targetY = isMovingUp ? transform.position.y - 5f : transform.position.y + 5f; 
+        float startY = transform.position.y; 
+        float journeyLength = Mathf.Abs(targetY - startY); 
+        float journeyTime = journeyLength / moveSpeed; 
+        float elapsedTime = 0f; 
+
+        // Gerakan ke posisi target
         while (elapsedTime < journeyTime)
         {
-            elapsedTime += Time.deltaTime;
-            float newY = Mathf.Lerp(startY, targetY, elapsedTime / journeyTime);
-            transform.position = new Vector3(transform.position.x, newY, transform.position.z);
-            yield return null;
+            elapsedTime += Time.deltaTime; 
+            float newY = Mathf.Lerp(startY, targetY, elapsedTime / journeyTime); 
+            transform.position = new Vector3(transform.position.x, newY, transform.position.z); 
+            yield return null; 
         }
 
-        // Pastiin karakternya balik ke posisi awal.
+        
         transform.position = new Vector3(transform.position.x, targetY, transform.position.z);
+        anim.SetBool("movement", false); 
+        anim.SetBool("isMovingUp", false); 
+        anim.SetBool("isMovingDown", false); 
+
+        // Update status gerakan
+        isMovingUp = !isMovingUp; 
+    }
+
+    private void StartHoldAttack()
+    {
+        isHoldingAttack = true;
+        Debug.Log("Hold Attack kita mulai");
+    }
+
+    private void EndHoldAttack()
+    {
+        isHoldingAttack = false;
+        Debug.Log("Selesai Hold Attack");
+    }
+
+    private void NormalAttack()
+    {
+        Debug.Log("Serangan biasa dilakukan");
+    }
+
+    private void MoveUp()
+    {
+        anim.SetBool("movement", true); 
+        transform.position += new Vector3(0, 5f, 0);
+        isMovingUp = true; 
+    }
+
+    private void MoveDown()
+    {
+        anim.SetBool("movement", false); 
+        transform.position += new Vector3(0, -5f, 0); 
+        isMovingUp = false; 
     }
 }
