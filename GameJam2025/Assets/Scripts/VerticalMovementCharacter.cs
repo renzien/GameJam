@@ -10,6 +10,7 @@ public class VerticalMovementCharacter : MonoBehaviour
     private Coroutine moveCoroutine;
     private bool isHoldingAttack = false;
     private bool isMovingUp = false;
+    private bool isAttacking = false;
 
     // Main Method
     void Start()
@@ -26,9 +27,16 @@ public class VerticalMovementCharacter : MonoBehaviour
         }
     
         // Tombol L menyerang renew
-        if (Input.GetKeyDown(KeyCode.L) && !isHoldingAttack)
+        // if (Input.GetKeyDown(KeyCode.L) && !isHoldingAttack)
+        // {
+        //     NormalAttack();
+        // }
+        if (Input.GetKeyDown(KeyCode.L))
         {
-            NormalAttack();
+            if (!isHoldingAttack && !isAttacking)
+            {
+                NormalAttack();
+            }
         }
 
         if (Input.GetKey(KeyCode.L))
@@ -75,6 +83,13 @@ public class VerticalMovementCharacter : MonoBehaviour
         isMovingUp = !isMovingUp; 
     }
 
+    private IEnumerator ResetAttackStatus()
+    {
+        yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
+        anim.SetBool("isAttacking", false);
+        isAttacking = false;
+    }
+
     private void StartHoldAttack()
     {
         isHoldingAttack = true;
@@ -89,7 +104,11 @@ public class VerticalMovementCharacter : MonoBehaviour
 
     private void NormalAttack()
     {
+        isAttacking = true;
+        anim.SetBool("isAttacking", true);
         Debug.Log("Serangan biasa dilakukan");
+
+        StartCoroutine(ResetAttackStatus());
     }
 
     private void MoveUp()
