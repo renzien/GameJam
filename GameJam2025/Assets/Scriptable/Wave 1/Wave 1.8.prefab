@@ -297,6 +297,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b31ccb45c1276443b8cf214a984faae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bpm: 123
+  bpm: 124
   moveDirection: {x: -1, y: 0, z: 0}
   moveDistance: 3.5
