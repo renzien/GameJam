@@ -220,7 +220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 322e6fbf0147dd6518128094bccfe55a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
+  moveSpeed: 15
 --- !u!95 &61671561
 Animator:
   serializedVersion: 5
