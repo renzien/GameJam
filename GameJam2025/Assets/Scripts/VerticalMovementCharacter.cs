@@ -12,6 +12,9 @@ public class VerticalMovementCharacter : MonoBehaviour
     private bool isMovingUp = false;
     private bool isAttacking = false;
 
+    private float holdTime = 0.0f;
+    private const float holdThreshold = 0.5f;
+
     // Main Method
     void Start()
     {
@@ -27,27 +30,54 @@ public class VerticalMovementCharacter : MonoBehaviour
         }
     
         // Tombol L menyerang renew
-        // if (Input.GetKeyDown(KeyCode.L) && !isHoldingAttack)
+        // if (Input.GetKeyDown(KeyCode.L))
         // {
-        //     NormalAttack();
+        //     if (!isHoldingAttack && !isAttacking)
+        //     {
+        //         NormalAttack();
+        //     }
         // }
+
+        //Tombol L dengan holder
         if (Input.GetKeyDown(KeyCode.L))
         {
+            holdTime = 0.0f;
+        }
+
+        // if (Input.GetKey(KeyCode.L))
+        // {
+        //     if (!isHoldingAttack)
+        //     {
+        //         StartHoldAttack();
+        //     }
+        // } else if (isHoldingAttack)
+        // {
+        //     EndHoldAttack();
+        // }
+
+        //Tombol GetKey
+        if (Input.GetKey(KeyCode.L))
+        {
+            holdTime += Time.deltaTime;
             if (!isHoldingAttack && !isAttacking)
+            {
+                if (holdTime >= holdThreshold)
+                {
+                    StartHoldAttack();
+                }
+            }
+             
+        }
+
+        if (Input.GetKeyUp(KeyCode.L))
+        {
+            if (holdTime < holdThreshold)
             {
                 NormalAttack();
             }
-        }
 
-        if (Input.GetKey(KeyCode.L))
-        {
-            if (!isHoldingAttack)
-            {
-                StartHoldAttack();
-            }
-        } else if (isHoldingAttack)
-        {
-            EndHoldAttack();
+            //Reset Waktunya
+            holdTime = 0.0f;
         }
     }
 
@@ -85,43 +115,53 @@ public class VerticalMovementCharacter : MonoBehaviour
 
     private IEnumerator ResetAttackStatus()
     {
-        yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
-        anim.SetBool("isAttacking", false);
+        yield return new WaitForSeconds(1f);
+        anim.SetBool("isAttacking",false);
         isAttacking = false;
+    }
+
+    private IEnumerator EndHoldAttack(float duration)
+    {
+        float elapsedTime = 0f; // Waktu yang telah berlalu
+        while (elapsedTime < duration)
+        {
+            if (!Input.GetKey(KeyCode.L)) // Cek jika tombol tidak ditekan
+            {
+                break; // Keluar dari loop jika tombol dilepaskan
+            }
+            elapsedTime += Time.deltaTime; // Tambahkan waktu yang telah berlalu
+            yield return null; // Tunggu frame berikutnya
+        }
+        anim.SetBool("isHoldingAttack", false); // Reset animasi serangan
+        Debug.Log("Hold attack diakhiri");
     }
 
     private void StartHoldAttack()
     {
-        isHoldingAttack = true;
-        Debug.Log("Hold Attack kita mulai");
-    }
+        anim.SetBool("isHoldingAttack", true); // Set animasi serangan hold
+        Debug.Log("Serangan Hold");
 
-    private void EndHoldAttack()
-    {
-        isHoldingAttack = false;
-        Debug.Log("Selesai Hold Attack");
+        // Mulai coroutine untuk mengakhiri hold attack
+        StartCoroutine(EndHoldAttack(1f)); // Misalnya, durasi hold attack 1 detik
     }
 
     private void NormalAttack()
     {
-        isAttacking = true;
-        anim.SetBool("isAttacking", true);
-        Debug.Log("Serangan biasa dilakukan");
-
-        StartCoroutine(ResetAttackStatus());
+        if (!isAttacking)
+        {
+            isAttacking = true;
+            anim.SetBool("isAttacking", true);
+            StartCoroutine(ResetAttackStatus());
+        }
     }
 
-    private void MoveUp()
+    private float GetAnimationDuration(string animationName)
     {
-        anim.SetBool("movement", true); 
-        transform.position += new Vector3(0, 5f, 0);
-        isMovingUp = true; 
-    }
-
-    private void MoveDown()
-    {
-        anim.SetBool("movement", false); 
-        transform.position += new Vector3(0, -5f, 0); 
-        isMovingUp = false; 
+        AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        if (stateInfo.IsName(animationName))
+        {
+            return stateInfo.length;
+        }
+        return 0f;
     }
 }
