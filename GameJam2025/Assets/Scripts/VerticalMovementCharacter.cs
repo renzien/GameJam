@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class VerticalMovementCharacter : MonoBehaviour
@@ -11,6 +12,7 @@ public class VerticalMovementCharacter : MonoBehaviour
     private bool isHoldingAttack = false;
     private bool isMovingUp = false;
     private bool isAttacking = false;
+    private bool isWallRunning = false;
 
     private float holdTime = 0.0f;
     private const float holdThreshold = 0.5f;
@@ -26,34 +28,26 @@ public class VerticalMovementCharacter : MonoBehaviour
         // Gerakan ke atas dan ke bawah dengan tombol K
         if (Input.GetKeyDown(KeyCode.K))
         {
-            StartCoroutine(MoveCharacter()); // Pindahkan karakter dengan coroutine
+            if (isWallRunning)
+            {
+                isWallRunning = false;
+                anim.SetBool("isWallRunning",false);
+            } else
+            {
+                StartCoroutine(MoveCharacter());
+            }
         }
-    
-        // Tombol L menyerang renew
-        // if (Input.GetKeyDown(KeyCode.L))
-        // {
-        //     if (!isHoldingAttack && !isAttacking)
-        //     {
-        //         NormalAttack();
-        //     }
-        // }
+
+        if (isMovingUp && Input.GetKeyDown(KeyCode.K))
+        {
+            StartCoroutine(WallRun());
+        }
 
         //Tombol L dengan holder
         if (Input.GetKeyDown(KeyCode.L))
         {
             holdTime = 0.0f;
         }
-
-        // if (Input.GetKey(KeyCode.L))
-        // {
-        //     if (!isHoldingAttack)
-        //     {
-        //         StartHoldAttack();
-        //     }
-        // } else if (isHoldingAttack)
-        // {
-        //     EndHoldAttack();
-        // }
 
         //Tombol GetKey
         if (Input.GetKey(KeyCode.L))
@@ -122,27 +116,38 @@ public class VerticalMovementCharacter : MonoBehaviour
 
     private IEnumerator EndHoldAttack(float duration)
     {
-        float elapsedTime = 0f; // Waktu yang telah berlalu
+        float elapsedTime = 0f; 
         while (elapsedTime < duration)
         {
-            if (!Input.GetKey(KeyCode.L)) // Cek jika tombol tidak ditekan
+            if (!Input.GetKey(KeyCode.L)) 
             {
-                break; // Keluar dari loop jika tombol dilepaskan
+                break; 
             }
-            elapsedTime += Time.deltaTime; // Tambahkan waktu yang telah berlalu
-            yield return null; // Tunggu frame berikutnya
+            elapsedTime += Time.deltaTime; 
+            yield return null; 
         }
-        anim.SetBool("isHoldingAttack", false); // Reset animasi serangan
+        anim.SetBool("isHoldingAttack", false); 
         Debug.Log("Hold attack diakhiri");
+    }
+
+    private IEnumerator WallRun()
+    {
+        isWallRunning = true;
+        anim.SetBool("isWallRunning", true);
+        yield return new WaitForSeconds(2f);
+        
+        //Matiin Wallrun
+        isWallRunning = false;
+        anim.SetBool("isWallRunning", false);
     }
 
     private void StartHoldAttack()
     {
-        anim.SetBool("isHoldingAttack", true); // Set animasi serangan hold
+        anim.SetBool("isHoldingAttack", true); 
         Debug.Log("Serangan Hold");
 
         // Mulai coroutine untuk mengakhiri hold attack
-        StartCoroutine(EndHoldAttack(1f)); // Misalnya, durasi hold attack 1 detik
+        StartCoroutine(EndHoldAttack(1f)); 
     }
 
     private void NormalAttack()
