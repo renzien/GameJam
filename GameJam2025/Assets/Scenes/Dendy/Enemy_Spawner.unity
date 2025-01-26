@@ -1144,7 +1144,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: de4847d9609f8a2459e9028c739fa33a, type: 2}
   audioSource: {fileID: 1913755336}
   waveSpawnTimes:
-  - 4
+  - 0
   x: 11.07
   currentAudioTime: 0
   bpm: 123
